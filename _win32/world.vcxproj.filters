@@ -19,12 +19,6 @@
     <Filter Include="lib">
       <UniqueIdentifier>{74287574-39d5-4f58-aaff-7dd63c134b28}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ces">
-      <UniqueIdentifier>{9d44e51f-0262-47eb-9437-db99acc79326}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ces\system">
-      <UniqueIdentifier>{a14c8cca-f657-4df8-9feb-e5b8e3915100}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\main.cpp">
@@ -80,27 +74,6 @@
     </ClCompile>
     <ClCompile Include="..\core\resource_manager.cpp">
       <Filter>core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ces\components.cpp">
-      <Filter>ces</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ces\entity.cpp">
-      <Filter>ces</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ces\system\ai.cpp">
-      <Filter>ces\system</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ces\system\collision.cpp">
-      <Filter>ces\system</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ces\system\input.cpp">
-      <Filter>ces\system</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ces\system\physics.cpp">
-      <Filter>ces\system</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ces\system\render.cpp">
-      <Filter>ces\system</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\tano_math.cpp">
       <Filter>src</Filter>
@@ -166,33 +139,6 @@
     </ClInclude>
     <ClInclude Include="..\core\resource_manager.hpp">
       <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ces\components.hpp">
-      <Filter>ces</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ces\entity.hpp">
-      <Filter>ces</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ces\update_state.hpp">
-      <Filter>ces</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ces\system\ai.hpp">
-      <Filter>ces\system</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ces\system\collision.hpp">
-      <Filter>ces\system</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ces\system\input.hpp">
-      <Filter>ces\system</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ces\system\physics.hpp">
-      <Filter>ces\system</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ces\system\render.hpp">
-      <Filter>ces\system</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ces\system\system_base.hpp">
-      <Filter>ces\system</Filter>
     </ClInclude>
     <ClInclude Include="..\lib\tano_math.hpp">
       <Filter>inc</Filter>

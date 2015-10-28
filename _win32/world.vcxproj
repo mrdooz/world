@@ -145,13 +145,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\ces\components.cpp" />
-    <ClCompile Include="..\ces\entity.cpp" />
-    <ClCompile Include="..\ces\system\ai.cpp" />
-    <ClCompile Include="..\ces\system\collision.cpp" />
-    <ClCompile Include="..\ces\system\input.cpp" />
-    <ClCompile Include="..\ces\system\physics.cpp" />
-    <ClCompile Include="..\ces\system\render.cpp" />
     <ClCompile Include="..\core\filewatcher_win32.cpp" />
     <ClCompile Include="..\core\fullscreen_effect.cpp" />
     <ClCompile Include="..\core\gpu_objects.cpp" />
@@ -185,15 +178,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\ces\components.hpp" />
-    <ClInclude Include="..\ces\entity.hpp" />
-    <ClInclude Include="..\ces\system\ai.hpp" />
-    <ClInclude Include="..\ces\system\collision.hpp" />
-    <ClInclude Include="..\ces\system\input.hpp" />
-    <ClInclude Include="..\ces\system\physics.hpp" />
-    <ClInclude Include="..\ces\system\render.hpp" />
-    <ClInclude Include="..\ces\system\system_base.hpp" />
-    <ClInclude Include="..\ces\update_state.hpp" />
     <ClInclude Include="..\core\filewatcher_win32.hpp" />
     <ClInclude Include="..\core\fullscreen_effect.hpp" />
     <ClInclude Include="..\core\gpu_objects.hpp" />
