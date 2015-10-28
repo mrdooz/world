@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{f925df7d-6123-4706-9c88-4fd63a404737}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="inc">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="lib">
+      <UniqueIdentifier>{74287574-39d5-4f58-aaff-7dd63c134b28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ces">
+      <UniqueIdentifier>{9d44e51f-0262-47eb-9437-db99acc79326}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ces\system">
+      <UniqueIdentifier>{a14c8cca-f657-4df8-9feb-e5b8e3915100}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\precompiled.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\core\graphics.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\core\graphics_context.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\core\graphics_extra.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\core\gpu_objects.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\string_utils.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\core\graphics_utils.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\error.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\init_sequence.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\utils.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\file_utils.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\path_utils.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\core\fullscreen_effect.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\stop_watch.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\arena_allocator.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\core\filewatcher_win32.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\core\resource_manager.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ces\components.cpp">
+      <Filter>ces</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ces\entity.cpp">
+      <Filter>ces</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ces\system\ai.cpp">
+      <Filter>ces\system</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ces\system\collision.cpp">
+      <Filter>ces\system</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ces\system\input.cpp">
+      <Filter>ces\system</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ces\system\physics.cpp">
+      <Filter>ces\system</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ces\system\render.cpp">
+      <Filter>ces\system</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\tano_math.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\precompiled.hpp">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\graphics.hpp">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\graphics_context.hpp">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\graphics_extra.hpp">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\gpu_objects.hpp">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\string_utils.hpp">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\vertex_types.hpp">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\graphics_utils.hpp">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\error.hpp">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\init_sequence.hpp">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\utils.hpp">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\file_utils.hpp">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\path_utils.hpp">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\fullscreen_effect.hpp">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\rolling_average.hpp">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\stop_watch.hpp">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\arena_allocator.hpp">
+      <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\filewatcher_win32.hpp">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\resource_manager.hpp">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ces\components.hpp">
+      <Filter>ces</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ces\entity.hpp">
+      <Filter>ces</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ces\update_state.hpp">
+      <Filter>ces</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ces\system\ai.hpp">
+      <Filter>ces\system</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ces\system\collision.hpp">
+      <Filter>ces\system</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ces\system\input.hpp">
+      <Filter>ces\system</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ces\system\physics.hpp">
+      <Filter>ces\system</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ces\system\render.hpp">
+      <Filter>ces\system</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ces\system\system_base.hpp">
+      <Filter>ces\system</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\tano_math.hpp">
+      <Filter>inc</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="world.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
