@@ -602,7 +602,7 @@ ObjectHandle Graphics::LoadTexture(const char* filename, bool srgb, D3DX11_IMAGE
   ObjectHandle handle = ReserveObjectHandle(ObjectHandle::kResource);
   bool firstTime = true;
 
-  FileWatcherWin32::AddFileWatchResult res = RESOURCE_MANAGER.AddFileWatch(filename,
+  FileWatcherWin32::AddFileWatchResult res = g_ResourceManager->AddFileWatch(filename,
     true,
     [&firstTime, info, handle, this](const string& filename) -> bool
   {
@@ -1086,7 +1086,7 @@ ObjectHandle Graphics::LoadVertexShaderFromFile(const string& filenameBase,
   if (elements)
     localElementDesc = *elements;
 
-  FileWatcherWin32::AddFileWatchResult res = RESOURCE_MANAGER.AddFileWatch(filename.c_str(),
+  FileWatcherWin32::AddFileWatchResult res = g_ResourceManager->AddFileWatch(filename.c_str(),
       true,
       [=](const string& filename)
       {
@@ -1094,7 +1094,7 @@ ObjectHandle Graphics::LoadVertexShaderFromFile(const string& filenameBase,
         vector<char> buf;
         ID3D11VertexShader* shader = nullptr;
 
-        INIT_FATAL(RESOURCE_MANAGER.LoadFile(filename.c_str(), &buf));
+        INIT_FATAL(g_ResourceManager->LoadFile(filename.c_str(), &buf));
         INIT_HR_FATAL(_device->CreateVertexShader(buf.data(), buf.size(), NULL, &shader));
         _vertexShaders.Update(handle, shader);
 
@@ -1120,7 +1120,7 @@ ObjectHandle Graphics::LoadPixelShaderFromFile(const string& filenameBase, const
   string filename = filenameBase + ToString("_%s.pso", entry);
 #endif
 
-  FileWatcherWin32::AddFileWatchResult res = RESOURCE_MANAGER.AddFileWatch(filename,
+  FileWatcherWin32::AddFileWatchResult res = g_ResourceManager->AddFileWatch(filename,
       true,
       [=](const string& filename)
       {
@@ -1129,7 +1129,7 @@ ObjectHandle Graphics::LoadPixelShaderFromFile(const string& filenameBase, const
         vector<char> buf;
         ID3D11PixelShader* shader = nullptr;
 
-        INIT_FATAL(RESOURCE_MANAGER.LoadFile(filename.c_str(), &buf));
+        INIT_FATAL(g_ResourceManager->LoadFile(filename.c_str(), &buf));
         INIT_HR_FATAL(_device->CreatePixelShader(buf.data(), buf.size(), NULL, &shader));
         _pixelShaders.Update(handle, shader);
 
@@ -1150,7 +1150,7 @@ ObjectHandle Graphics::LoadGeometryShaderFromFile(const string& filenameBase, co
   string filename = filenameBase + ToString("_%s.gso", entry);
 #endif
 
-  FileWatcherWin32::AddFileWatchResult res = RESOURCE_MANAGER.AddFileWatch(filename.c_str(),
+  FileWatcherWin32::AddFileWatchResult res = g_ResourceManager->AddFileWatch(filename.c_str(),
       true,
       [=](const string& filename)
       {
@@ -1159,7 +1159,7 @@ ObjectHandle Graphics::LoadGeometryShaderFromFile(const string& filenameBase, co
         vector<char> buf;
         ID3D11GeometryShader* shader = nullptr;
 
-        INIT_FATAL(RESOURCE_MANAGER.LoadFile(filename.c_str(), &buf));
+        INIT_FATAL(g_ResourceManager->LoadFile(filename.c_str(), &buf));
         INIT_HR_FATAL(_device->CreateGeometryShader(buf.data(), buf.size(), NULL, &shader));
         _geometryShaders.Update(handle, shader);
 
@@ -1180,7 +1180,7 @@ ObjectHandle Graphics::LoadComputeShaderFromFile(const string& filenameBase, con
   string filename = filenameBase + ToString("_%s.cso", entry);
 #endif
 
-  FileWatcherWin32::AddFileWatchResult res = RESOURCE_MANAGER.AddFileWatch(filename.c_str(),
+  FileWatcherWin32::AddFileWatchResult res = g_ResourceManager->AddFileWatch(filename.c_str(),
       true,
       [=](const string& filename)
       {
@@ -1189,7 +1189,7 @@ ObjectHandle Graphics::LoadComputeShaderFromFile(const string& filenameBase, con
         vector<char> buf;
         ID3D11ComputeShader* shader = nullptr;
 
-        INIT_FATAL(RESOURCE_MANAGER.LoadFile(filename.c_str(), &buf));
+        INIT_FATAL(g_ResourceManager->LoadFile(filename.c_str(), &buf));
         INIT_HR_FATAL(_device->CreateComputeShader(buf.data(), buf.size(), NULL, &shader));
         _computeShaders.Update(handle, shader);
 

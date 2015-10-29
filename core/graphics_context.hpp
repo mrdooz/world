@@ -2,24 +2,10 @@
 #include "object_handle.hpp"
 #include "graphics.hpp"
 #include "gpu_objects.hpp"
+#include <lib/tano_math.hpp>
 
 namespace world
 {
-  struct Color
-  {
-    Color(float r, float g, float b, float a) : r(r), g(g), b(b), a(a) {}
-    union
-    {
-      struct {
-        float x, y, z, w;
-      };
-
-      struct {
-        float r, g, b, a;
-      };
-    };
-  };
-
   class GraphicsContext
   {
     friend class Graphics;

@@ -100,9 +100,10 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PARSER_WITH_VECTOR_TYPES;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>precompiled.hpp</PrecompiledHeaderFile>
       <ForcedIncludeFiles>precompiled.hpp</ForcedIncludeFiles>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -133,9 +134,10 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PARSER_WITH_VECTOR_TYPES;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>precompiled.hpp</PrecompiledHeaderFile>
       <ForcedIncludeFiles>precompiled.hpp</ForcedIncludeFiles>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -161,17 +163,21 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.hpp</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="..\core\graphics_utils.cpp" />
+    <ClCompile Include="..\core\imgui_helpers.cpp" />
     <ClCompile Include="..\core\resource_manager.cpp" />
+    <ClCompile Include="..\core\sprite_manager.cpp" />
     <ClCompile Include="..\lib\arena_allocator.cpp" />
     <ClCompile Include="..\lib\error.cpp" />
     <ClCompile Include="..\lib\file_utils.cpp" />
     <ClCompile Include="..\lib\init_sequence.cpp" />
+    <ClCompile Include="..\lib\input_buffer.cpp" />
+    <ClCompile Include="..\lib\parse_base.cpp" />
     <ClCompile Include="..\lib\path_utils.cpp" />
     <ClCompile Include="..\lib\stop_watch.cpp" />
     <ClCompile Include="..\lib\string_utils.cpp" />
     <ClCompile Include="..\lib\tano_math.cpp" />
     <ClCompile Include="..\lib\utils.cpp" />
-    <ClCompile Include="..\main.cpp" />
+    <ClCompile Include="..\world.cpp" />
     <ClCompile Include="..\precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -185,12 +191,17 @@
     <ClInclude Include="..\core\graphics_context.hpp" />
     <ClInclude Include="..\core\graphics_extra.hpp" />
     <ClInclude Include="..\core\graphics_utils.hpp" />
+    <ClInclude Include="..\core\imgui_helpers.hpp" />
+    <ClInclude Include="..\core\object_handle.hpp" />
     <ClInclude Include="..\core\resource_manager.hpp" />
+    <ClInclude Include="..\core\sprite_manager.hpp" />
     <ClInclude Include="..\core\vertex_types.hpp" />
     <ClInclude Include="..\lib\arena_allocator.hpp" />
     <ClInclude Include="..\lib\error.hpp" />
     <ClInclude Include="..\lib\file_utils.hpp" />
     <ClInclude Include="..\lib\init_sequence.hpp" />
+    <ClInclude Include="..\lib\input_buffer.hpp" />
+    <ClInclude Include="..\lib\parse_base.hpp" />
     <ClInclude Include="..\lib\path_utils.hpp" />
     <ClInclude Include="..\lib\rolling_average.hpp" />
     <ClInclude Include="..\lib\stop_watch.hpp" />
@@ -198,6 +209,7 @@
     <ClInclude Include="..\lib\tano_math.hpp" />
     <ClInclude Include="..\lib\utils.hpp" />
     <ClInclude Include="..\precompiled.hpp" />
+    <ClInclude Include="..\world.hpp" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

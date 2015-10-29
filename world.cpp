@@ -1,9 +1,17 @@
 #include "core/graphics.hpp"
+#include "core/resource_manager.hpp"
+#include "core/sprite_manager.hpp"
 #include "lib/error.hpp"
 #include "lib/init_sequence.hpp"
 #include "lib/rolling_average.hpp"
 #include "lib/stop_watch.hpp"
 #include "lib/arena_allocator.hpp"
+#include "lib/file_utils.hpp"
+#include "world.hpp"
+
+#if WITH_IMGUI
+#include "core/imgui_helpers.hpp"
+#endif
 
 const TCHAR* g_AppWindowClass = _T("World");
 const TCHAR* g_AppWindowTitle = _T("World");
@@ -12,9 +20,93 @@ using namespace world;
 static const int WM_APP_CLOSE = WM_APP + 2;
 
 ArenaAllocator world::g_ScratchMemory;
+KeyUpTrigger world::g_KeyUpTrigger;
+
+namespace world
+{
+  struct Entity
+  {
+    u32 id;
+  };
+}
 
 //------------------------------------------------------------------------------
-LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+bool World::Init(HINSTANCE hinstance)
+{
+  BEGIN_INIT_SEQUENCE();
+
+  FindAppRoot("app.gb");
+
+  INIT_FATAL(ResourceManager::Create("resources.txt", _appRoot.c_str()));
+  g_ResourceManager->AddPath("D:/OneDrive/tano");
+  g_ResourceManager->AddPath("C:/OneDrive/tano");
+
+  INIT_FATAL(Graphics::Create(hinstance));
+
+  int width = GetSystemMetrics(SM_CXFULLSCREEN);
+  int height = GetSystemMetrics(SM_CYFULLSCREEN);
+  width = (int)(0.75f * width);
+  height = (int)(0.75f * height);
+
+  int bbWidth = width;
+  int bbHeight = height;
+
+  g_Graphics->CreateDefaultSwapChain(
+    width, height, bbWidth, bbHeight, true, DXGI_FORMAT_R8G8B8A8_UNORM, WndProc, hinstance);
+
+#if WITH_IMGUI
+  INIT_FATAL(InitImGui(g_Graphics->GetSwapChain(g_Graphics->DefaultSwapChain())->_hwnd));
+#endif
+
+  INIT_FATAL(SpriteManager::Create());
+
+  g_SpriteManager->LoadSpriteSheet("/OneDrive/world/gfx/oryx_16bit_fantasy_world_trans.sheet");
+  END_INIT_SEQUENCE();
+}
+
+//------------------------------------------------------------------------------
+bool World::Close()
+{
+  SpriteManager::Destroy();
+  ResourceManager::Destroy();
+  Graphics::Destroy();
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool World::FindAppRoot(const char* filename)
+{
+  char starting_dir[MAX_PATH];
+  _getcwd(starting_dir, MAX_PATH);
+
+  // keep going up directory levels until we find @filename, or we hit the bottom..
+  char prev_dir[MAX_PATH], cur_dir[MAX_PATH];
+  ZeroMemory(prev_dir, sizeof(prev_dir));
+
+  while (true)
+  {
+    _getcwd(cur_dir, MAX_PATH);
+    // check if we haven't moved
+    if (!strcmp(cur_dir, prev_dir))
+      return false;
+
+    memcpy(prev_dir, cur_dir, MAX_PATH);
+
+    if (FileExists(filename))
+    {
+      _appRoot = cur_dir;
+      return true;
+    }
+
+    if (_chdir("..") == -1)
+      break;
+  }
+  _appRoot = starting_dir;
+  return false;
+}
+
+//------------------------------------------------------------------------------
+LRESULT World::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 #if WITH_IMGUI
   ImGuiWndProc(hWnd, message, wParam, lParam);
@@ -101,7 +193,20 @@ LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 //------------------------------------------------------------------------------
-bool Run()
+void World::UpdateIoState()
+{
+  u8 keystate[256];
+  GetKeyboardState(keystate);
+  for (int i = 0; i < 256; i++)
+    _ioState.keysPressed[i] = (keystate[i] & 0x80) != 0;
+
+  _ioState.controlPressed = (keystate[VK_CONTROL] & 0x80) != 0;
+  _ioState.shiftPressed = (keystate[VK_SHIFT] & 0x80) != 0;
+  _ioState.altPressed = (keystate[VK_MENU] & 0x80) != 0;
+}
+
+//------------------------------------------------------------------------------
+bool World::Run()
 {
   MSG msg = { 0 };
 
@@ -123,10 +228,6 @@ bool Run()
 
     //UpdateIoState();
 
-#if WITH_DEBUG_API
-    DEBUG_API.BeginFrame();
-#endif
-
 #if WITH_IMGUI
     UpdateImGui();
 #endif
@@ -135,14 +236,6 @@ bool Run()
 
 #if WITH_UNPACKED_RESOUCES
     RESOURCE_MANAGER.Tick();
-#endif
-
-#if WITH_DEBUG_API
-    DEBUG_API.EndFrame();
-#endif
-
-#if WITH_BLACKBOARD_TCP
-    g_Blackboard->Process();
 #endif
 
 #if WITH_IMGUI
@@ -161,9 +254,9 @@ bool Run()
       ImGui::PlotLines(
         "Frame time", times, (int)numSamples, 0, 0, FLT_MAX, FLT_MAX, ImVec2(200, 50));
 
-      // Invoke any custom perf callbacks
-      for (const fnPerfCallback& cb : _perfCallbacks)
-        cb();
+      //// Invoke any custom perf callbacks
+      //for (const fnPerfCallback& cb : _perfCallbacks)
+      //  cb();
       ImGui::End();
     }
 
@@ -194,20 +287,14 @@ int CALLBACK WinMain(HINSTANCE hinstance, HINSTANCE prev_instance, LPSTR cmd_lin
   _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_DEBUG);
 #endif
 
-  INIT_FATAL(Graphics::Create(hinstance));
+  World world;
 
-  int width = GetSystemMetrics(SM_CXFULLSCREEN);
-  int height = GetSystemMetrics(SM_CYFULLSCREEN);
-  width = (int)(0.75f * width);
-  height = (int)(0.75f * height);
+  if (!world.Init(hinstance))
+    return 1;
 
-  int bbWidth = width;
-  int bbHeight = height;
+  world.Run();
 
-  g_Graphics->CreateDefaultSwapChain(
-    width, height, bbWidth, bbHeight, true, DXGI_FORMAT_R8G8B8A8_UNORM, WndProc, hinstance);
-
-  Run();
+  world.Close();
 
   return 0;
 }

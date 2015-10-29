@@ -181,7 +181,6 @@ namespace world
     char dir_buf[_MAX_DIR];
     char fname_buf[_MAX_FNAME];
     char ext_buf[_MAX_EXT];
-#pragma warning(suppress: 4996)
     _splitpath(path, drive_buf, dir_buf, fname_buf, ext_buf);
     if (drive) *drive = drive_buf;
     if (dir) *dir = dir_buf;

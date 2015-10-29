@@ -4,6 +4,24 @@
 
 namespace world
 {
+  struct Color
+  {
+    Color(float r, float g, float b, float a) : r(r), g(g), b(b), a(a) {}
+    union
+    {
+      struct {
+        float x, y, z, w;
+      };
+
+      struct {
+        float r, g, b, a;
+      };
+    };
+  };
+
+  // meh..
+  typedef Color color;
+
   struct vec2
   {
     vec2() {}

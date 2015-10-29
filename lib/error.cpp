@@ -76,7 +76,6 @@ LogSinkFile::~LogSinkFile()
 //-----------------------------------------------------------------------------
 bool LogSinkFile::Open(const char* filename)
 {
-#pragma warning(suppress: 4996)
   _file = fopen(filename, "at");
   return !!_file;
 }
@@ -95,7 +94,6 @@ void LogSinkFile::Log(const LogEntry& entry)
   char timeString[9];  // space for "HH:MM:SS\0"
 
   time(&current_time);
-#pragma warning(suppress: 4996)
   time_info = localtime(&current_time);
 
   strftime(timeString, sizeof(timeString), "%H:%M:%S", time_info);
@@ -110,7 +108,6 @@ void LogSinkConsole::Log(const LogEntry& entry)
   {
     // create clickable console prefix
     char buf[1024];
-#pragma warning(suppress: 4996)
     sprintf(buf, "%s(%d): ", entry.file, entry.line);
     OutputDebugStringA(buf);
   }

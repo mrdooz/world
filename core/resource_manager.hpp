@@ -10,10 +10,9 @@ namespace world
   class ResourceManager
   {
   public:
-    ResourceManager(const char* outputFilename);
+    ResourceManager(const char* outputFilename, const char* appRoot);
     ~ResourceManager();
 
-    static ResourceManager& Instance();
     static bool Create(const char* outputFilename, const char* appRoot);
     static bool Destroy();
 
@@ -75,8 +74,8 @@ namespace world
     set<FileInfo> _readFiles;
     string _appRoot;
   };
-#define RESOURCE_MANAGER ResourceManager::Instance()
-#define RESOURCE_MANAGER_STATIC ResourceManager
+
+  extern ResourceManager* g_ResourceManager;
 
 #else
 
@@ -85,7 +84,6 @@ namespace world
   public:
     PackedResourceManager(const char* resourceFile);
 
-    static PackedResourceManager& Instance();
     static bool Create(const char* resourceFile);
     static bool Destroy();
 
@@ -115,12 +113,8 @@ namespace world
     vector<int> _finalHash;
     vector<PackedFileInfo> _fileInfo;
 
-    static PackedResourceManager* _instance;
     string _resourceFile;
   };
-
-#define RESOURCE_MANAGER PackedResourceManager::Instance()
-#define RESOURCE_MANAGER_STATIC PackedResourceManager
 
 #endif
 }

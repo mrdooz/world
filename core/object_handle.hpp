@@ -36,12 +36,17 @@ namespace world
 
       // Animation
       kAnimation,
+
+      // Sprites
+      kSpriteSheet,
+
       cNumTypes
     };
 
   private:
     friend class Graphics;
     friend struct SwapChain;
+    friend struct SpriteManager;
     enum
     { 
       cTypeBits = 8,

@@ -70,7 +70,6 @@ namespace world
   //------------------------------------------------------------------------------
   bool SaveFile(const char *filename, const void *buf, int len)
   {
-#pragma warning(suppress: 4996)
     FILE *f = fopen(filename, "wb");
     if (!f)
       return false;

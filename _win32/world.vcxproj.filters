@@ -21,9 +21,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\main.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="..\precompiled.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -76,6 +73,21 @@
       <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\tano_math.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\world.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\input_buffer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\parse_base.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\core\sprite_manager.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\core\imgui_helpers.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -141,6 +153,24 @@
       <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="..\lib\tano_math.hpp">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\world.hpp">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\input_buffer.hpp">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\parse_base.hpp">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\sprite_manager.hpp">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\imgui_helpers.hpp">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\object_handle.hpp">
       <Filter>inc</Filter>
     </ClInclude>
   </ItemGroup>

@@ -5,6 +5,7 @@
 #endif
 
 #define WITH_UNPACKED_RESOURCES 1
+#define WITH_IMGUI 1
 
 #include <sys/types.h>
 #include <errno.h>
@@ -16,6 +17,10 @@
 #include <direct.h>
 #include <sys/stat.h>
 #include <io.h>
+
+#if WITH_IMGUI
+#include <imgui/imgui.h>
+#endif
 
 #pragma warning(push)
 #pragma warning(disable: 4005)

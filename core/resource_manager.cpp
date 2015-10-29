@@ -9,6 +9,8 @@ using namespace world;
 
 #if WITH_UNPACKED_RESOURCES
 
+ResourceManager* world::g_ResourceManager = nullptr;
+
 //------------------------------------------------------------------------------
 static bool FileExists(const char* filename)
 {
@@ -38,34 +40,25 @@ static string NormalizePath(const string &path, bool addTrailingSlash)
   }
   return res;
 }
-//------------------------------------------------------------------------------
-
-static ResourceManager* g_instance;
-
-//------------------------------------------------------------------------------
-ResourceManager &ResourceManager::Instance()
-{
-  return *g_instance;
-}
 
 //------------------------------------------------------------------------------
 bool ResourceManager::Create(const char* outputFilename, const char* appRoot)
 {
-  g_instance = new ResourceManager(outputFilename);
-  g_instance->_appRoot = appRoot;
+  g_ResourceManager = new ResourceManager(outputFilename, appRoot);
   return true;
 }
 
 //------------------------------------------------------------------------------
 bool ResourceManager::Destroy()
 {
-  delete exch_null(g_instance);
+  delete exch_null(g_ResourceManager);
   return true;
 }
 
 //------------------------------------------------------------------------------
-ResourceManager::ResourceManager(const char* outputFilename)
+ResourceManager::ResourceManager(const char* outputFilename, const char* appRoot)
   : _outputFilename(outputFilename)
+  , _appRoot(appRoot)
 {
   _paths.push_back("./");
 }
@@ -75,7 +68,6 @@ ResourceManager::~ResourceManager()
 {
   if (!_outputFilename.empty())
   {
-#pragma warning(suppress: 4996)
     FILE* f = fopen(_outputFilename.c_str(), "wt");
     for (auto it = begin(_readFiles); it != end(_readFiles); ++it)
     {
@@ -233,7 +225,6 @@ ObjectHandle ResourceManager::LoadTextureFromMemory(
 FILE* ResourceManager::OpenWriteFile(const char* filename)
 {
   string resolvedName = ResolveFilename(filename, false);
-#pragma warning(suppress: 4996)
   FILE* f = fopen(resolvedName.c_str(), "wb");
   if (!f)
     return nullptr;
