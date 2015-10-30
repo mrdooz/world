@@ -3,9 +3,14 @@
 #include <lib/parse_base.hpp>
 #include <lib/input_buffer.hpp>
 #include <lib/error.hpp>
+#include <lib/init_sequence.hpp>
+#include <lib/mesh_utils.hpp>
+#include <core/vertex_types.hpp>
 
 using namespace world;
 using namespace world::parser;
+
+static const int MAX_SPRITES_PER_BATCH = 32 * 1024;
 
 //------------------------------------------------------------------------------
 SpriteManager* world::g_SpriteManager = nullptr;
@@ -28,7 +33,23 @@ bool SpriteManager::Destroy()
 //------------------------------------------------------------------------------
 bool SpriteManager::Init()
 {
-  return true;
+  BEGIN_INIT_SEQUENCE();
+
+  // clang-format off
+  INIT(_renderTextureBundle.Create(BundleOptions()
+    .DepthStencilDesc(depthDescDepthDisabled)
+    .RasterizerDesc(rasterizeDescCullNone)
+    .VertexShader("shaders/out/common.texture", "VsRenderTexture")
+    .PixelShader("shaders/out/common.texture", "PsRenderTexture")
+    .InputElement(CD3D11_INPUT_ELEMENT_DESC("SV_POSITION", DXGI_FORMAT_R32G32B32A32_FLOAT))
+    .InputElement(CD3D11_INPUT_ELEMENT_DESC("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT))
+    .StaticIb(GenerateQuadIndices(MAX_SPRITES_PER_BATCH))
+    .DynamicVb(4 * MAX_SPRITES_PER_BATCH, sizeof(PosTex))));
+  // clang-format on
+
+  INIT_FATAL(_cbRenderTexture.Create());
+
+  END_INIT_SEQUENCE();
 }
 
 //------------------------------------------------------------------------------
@@ -282,4 +303,60 @@ ObjectHandle SpriteManager::LoadSpriteSheet(const char* filename)
   ObjectHandle res = ObjectHandle(ObjectHandle::kSpriteSheet, (int)_spriteSheets.size());
   _spriteSheets[res.id()] = sheet;
   return res;
+}
+
+//------------------------------------------------------------------------------
+void SpriteManager::RenderSprites(
+    ObjectHandle spriteSheet, const int* spriteIds, const vec2i* pos, int cnt)
+{
+  auto it = _spriteSheets.find(spriteSheet.id());
+  if (it == _spriteSheets.end())
+  {
+    LOG_ERROR("Invalid sprite sheet id: ", spriteSheet.id());
+    return;
+  }
+
+  const SpriteSheet& sheet = it->second;
+
+  ObjectHandle h = _renderTextureBundle.objects._vb;
+  PosTex* vtx = _ctx->MapWriteDiscard<PosTex>(h);
+
+  for (int i = 0; i < cnt;  ++i)
+  {
+    int spriteId = spriteIds[i];
+    if (spriteId >= sheet.sprites.size())
+    {
+      LOG_ERROR("Invalid sprite id: ", spriteId);
+      return;
+    }
+
+    const SpriteSheet::Sprite& sprite = sheet.sprites[spriteId];
+
+    // 0--1
+    // 2--3
+    
+    vtx[0] = PosTex{ pos.x, pos.y, 0, 0, 0 };
+    vtx[0] = PosTex{ pos.x, pos.y, 0, 0, 0 };
+    vtx[0] = PosTex{ pos.x, pos.y, 0, 0, 0 };
+    vtx[0] = PosTex{ pos.x, pos.y, 0, 0, 0 };
+  }
+  _ctx->Unmap(h);
+}
+
+//------------------------------------------------------------------------------
+void SpriteManager::RenderSprite(ObjectHandle spriteSheet, int spriteId, int x, int y)
+{
+  auto it = _spriteSheets.find(spriteSheet.id());
+  if (it == _spriteSheets.end())
+  {
+    LOG_ERROR("Invalid sprite sheet id: ", spriteSheet.id());
+    return;
+  }
+
+  const SpriteSheet& sheet = it->second;
+  if (spriteId >= sheet.sprites.size())
+  {
+    LOG_ERROR("Invalid sprite id: ", spriteId);
+    return;
+  }
 }

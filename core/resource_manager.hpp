@@ -19,6 +19,7 @@ namespace world
     bool FileExists(const char* filename);
     __time64_t ModifiedDate(const char* filename);
     bool LoadFile(const char* filename, vector<char>* buf);
+    bool LoadImage(const char* filename, u8** buf, int* w, int* h, int* channels);
 
     // file is opened relateive to the app root
     FILE* OpenWriteFile(const char* filename);

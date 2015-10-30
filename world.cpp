@@ -8,6 +8,7 @@
 #include "lib/arena_allocator.hpp"
 #include "lib/file_utils.hpp"
 #include "world.hpp"
+#include "game/level.hpp"
 
 #if WITH_IMGUI
 #include "core/imgui_helpers.hpp"
@@ -38,8 +39,8 @@ bool World::Init(HINSTANCE hinstance)
   FindAppRoot("app.gb");
 
   INIT_FATAL(ResourceManager::Create("resources.txt", _appRoot.c_str()));
-  g_ResourceManager->AddPath("D:/OneDrive/tano");
-  g_ResourceManager->AddPath("C:/OneDrive/tano");
+  g_ResourceManager->AddPath("D:/OneDrive/world");
+  g_ResourceManager->AddPath("C:/OneDrive/world");
 
   INIT_FATAL(Graphics::Create(hinstance));
 
@@ -60,7 +61,9 @@ bool World::Init(HINSTANCE hinstance)
 
   INIT_FATAL(SpriteManager::Create());
 
-  g_SpriteManager->LoadSpriteSheet("/OneDrive/world/gfx/oryx_16bit_fantasy_world_trans.sheet");
+  Level level;
+  level.Load("gfx/level1.png");
+
   END_INIT_SEQUENCE();
 }
 

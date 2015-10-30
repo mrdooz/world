@@ -166,11 +166,13 @@
     <ClCompile Include="..\core\imgui_helpers.cpp" />
     <ClCompile Include="..\core\resource_manager.cpp" />
     <ClCompile Include="..\core\sprite_manager.cpp" />
+    <ClCompile Include="..\game\level.cpp" />
     <ClCompile Include="..\lib\arena_allocator.cpp" />
     <ClCompile Include="..\lib\error.cpp" />
     <ClCompile Include="..\lib\file_utils.cpp" />
     <ClCompile Include="..\lib\init_sequence.cpp" />
     <ClCompile Include="..\lib\input_buffer.cpp" />
+    <ClCompile Include="..\lib\mesh_utils.cpp" />
     <ClCompile Include="..\lib\parse_base.cpp" />
     <ClCompile Include="..\lib\path_utils.cpp" />
     <ClCompile Include="..\lib\stop_watch.cpp" />
@@ -196,11 +198,13 @@
     <ClInclude Include="..\core\resource_manager.hpp" />
     <ClInclude Include="..\core\sprite_manager.hpp" />
     <ClInclude Include="..\core\vertex_types.hpp" />
+    <ClInclude Include="..\game\level.hpp" />
     <ClInclude Include="..\lib\arena_allocator.hpp" />
     <ClInclude Include="..\lib\error.hpp" />
     <ClInclude Include="..\lib\file_utils.hpp" />
     <ClInclude Include="..\lib\init_sequence.hpp" />
     <ClInclude Include="..\lib\input_buffer.hpp" />
+    <ClInclude Include="..\lib\mesh_utils.hpp" />
     <ClInclude Include="..\lib\parse_base.hpp" />
     <ClInclude Include="..\lib\path_utils.hpp" />
     <ClInclude Include="..\lib\rolling_average.hpp" />
@@ -209,6 +213,7 @@
     <ClInclude Include="..\lib\tano_math.hpp" />
     <ClInclude Include="..\lib\utils.hpp" />
     <ClInclude Include="..\precompiled.hpp" />
+    <ClInclude Include="..\stb\stb_image.h" />
     <ClInclude Include="..\world.hpp" />
     <ClInclude Include="resource.h" />
   </ItemGroup>

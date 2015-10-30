@@ -19,6 +19,12 @@
     <Filter Include="lib">
       <UniqueIdentifier>{74287574-39d5-4f58-aaff-7dd63c134b28}</UniqueIdentifier>
     </Filter>
+    <Filter Include="game">
+      <UniqueIdentifier>{e33f638d-ae5a-4bc1-8074-b87a37ccd0aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="stb">
+      <UniqueIdentifier>{887c52ed-4cba-43f0-adea-5c7130c0a682}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\precompiled.cpp">
@@ -88,6 +94,12 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\core\imgui_helpers.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\level.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\mesh_utils.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -171,6 +183,15 @@
       <Filter>inc</Filter>
     </ClInclude>
     <ClInclude Include="..\core\object_handle.hpp">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\level.hpp">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\stb\stb_image.h">
+      <Filter>stb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\mesh_utils.hpp">
       <Filter>inc</Filter>
     </ClInclude>
   </ItemGroup>

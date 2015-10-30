@@ -5,6 +5,7 @@
 #include <lib/error.hpp>
 #include <lib/file_utils.hpp>
 
+
 using namespace world;
 
 #if WITH_UNPACKED_RESOURCES
@@ -81,6 +82,17 @@ ResourceManager::~ResourceManager()
 void ResourceManager::AddPath(const string& path)
 {
   _paths.push_back(NormalizePath(path, true));
+}
+
+//------------------------------------------------------------------------------
+bool ResourceManager::LoadImage(const char* filename, u8** data, int* w, int* h, int* channels)
+{
+  vector<char> buf;
+  if (!LoadFile(filename, &buf))
+    return false;
+
+  *data = stbi_load_from_memory((const u8*)buf.data(), (int)buf.size(), w, h, channels, 0);
+  return *data != nullptr;
 }
 
 //------------------------------------------------------------------------------

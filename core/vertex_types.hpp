@@ -1,5 +1,5 @@
 #pragma once
-#include "tano_math.hpp"
+#include <lib/tano_math.hpp>
 
 // Some common vertex types collected in one place..
 

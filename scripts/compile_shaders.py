@@ -12,6 +12,8 @@ from collections import OrderedDict, defaultdict
 from string import Template
 import re
 
+NAMESPACE = 'world'
+
 SHADER_DIR = os.path.join('..', 'shaders')
 OUT_DIR = os.path.join(SHADER_DIR, 'out')
 ENTRY_POINT_TAG = 'entry-point'
@@ -108,7 +110,7 @@ known_types = {
 }
 
 buffer_template = Template("""#pragma once
-namespace tano
+namespace $namespace
 {
   namespace cb
   {
@@ -167,7 +169,10 @@ def dump_cbuffer(cbuffer_filename, cbuffers):
         bufs.append(cur)
 
     if num_valid:
-        res = buffer_template.substitute({'cbuffers': '\n'.join(bufs)})
+        res = buffer_template.substitute({
+            'cbuffers': '\n'.join(bufs),
+            'namespace': NAMESPACE,
+        })
 
         # check if this is identical to the previous cbuffer
         identical = False
