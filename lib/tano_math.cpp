@@ -110,6 +110,17 @@ namespace world
   }
 
   //------------------------------------------------------------------------------
+  mat4x4 mat4x4::Identity()
+  {
+    return mat4x4{
+      1, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 1, 0,
+      0, 0, 0, 1
+    };
+  }
+
+  //------------------------------------------------------------------------------
   // http://msdn.microsoft.com/en-us/library/windows/desktop/bb205342(v=vs.85).aspx
   mat4x4 MatrixLookAtLH(const vec3& vFrom, const vec3& vAt, const vec3& vWorldUp)
   {

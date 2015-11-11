@@ -246,9 +246,9 @@ void SpriteManager::Render()
   }
 
   mat4x4 view = MatrixLookAtLH(vec3(0, 0, -1), vec3(0, 0, 0), vec3(0, 1, 0));
-  mat4x4 proj = MatrixOrthoLH((float)bbWidth, (float)bbHeight, 0, 1);
-  mat4x4 viewProj = proj;
+  mat4x4 proj = MatrixOrthoLH((float)bbWidth, (float)bbHeight, 0, 10);
 
+  mat4x4 viewProj = view * proj;
 
   _cbRenderTexture.vs0.viewProj = Transpose(viewProj);
   _cbRenderTexture.Set(ctx, 0);

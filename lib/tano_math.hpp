@@ -258,6 +258,8 @@ namespace world
 
   struct mat4x4
   {
+    static mat4x4 Identity();
+
     float& operator[](int idx) { return d[idx]; }
     float operator[](int idx) const { return d[idx]; }
     float d[16];
