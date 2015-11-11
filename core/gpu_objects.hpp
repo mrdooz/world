@@ -231,7 +231,7 @@ namespace world
       ctx->SetConstantBuffer(cb, type, slot);
     }
 
-    void Set(GraphicsContext* ctx, u32 slot)
+    void Set(GraphicsContext* ctx, u32 slot = 0)
     {
       switch (slot)
       {

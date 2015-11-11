@@ -147,6 +147,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\core\entity.cpp" />
+    <ClCompile Include="..\core\event_manager.cpp" />
     <ClCompile Include="..\core\filewatcher_win32.cpp" />
     <ClCompile Include="..\core\fullscreen_effect.cpp" />
     <ClCompile Include="..\core\gpu_objects.cpp" />
@@ -186,6 +188,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\core\entity.hpp" />
+    <ClInclude Include="..\core\event_manager.hpp" />
     <ClInclude Include="..\core\filewatcher_win32.hpp" />
     <ClInclude Include="..\core\fullscreen_effect.hpp" />
     <ClInclude Include="..\core\gpu_objects.hpp" />

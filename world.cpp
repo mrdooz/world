@@ -1,6 +1,7 @@
 #include "core/graphics.hpp"
 #include "core/resource_manager.hpp"
 #include "core/sprite_manager.hpp"
+#include "core/event_manager.hpp"
 #include "lib/error.hpp"
 #include "lib/init_sequence.hpp"
 #include "lib/rolling_average.hpp"
@@ -43,6 +44,7 @@ bool World::Init(HINSTANCE hinstance)
   g_ResourceManager->AddPath("C:/OneDrive/world");
 
   INIT_FATAL(Graphics::Create(hinstance));
+  INIT_FATAL(EventManager::Create());
 
   int width = GetSystemMetrics(SM_CXFULLSCREEN);
   int height = GetSystemMetrics(SM_CYFULLSCREEN);
@@ -64,6 +66,8 @@ bool World::Init(HINSTANCE hinstance)
   Level level;
   level.Load("gfx/level1.png");
 
+  g_SpriteManager->LoadTmx("tmx/level1.json");
+
   END_INIT_SEQUENCE();
 }
 
@@ -73,6 +77,7 @@ bool World::Close()
   SpriteManager::Destroy();
   ResourceManager::Destroy();
   Graphics::Destroy();
+  EventManager::Destroy();
   return true;
 }
 
@@ -229,6 +234,7 @@ bool World::Run()
     }
     stopWatch.Start();
 
+    g_eventManager->Tick();
     //UpdateIoState();
 
 #if WITH_IMGUI
@@ -240,6 +246,8 @@ bool World::Run()
 #if WITH_UNPACKED_RESOUCES
     RESOURCE_MANAGER.Tick();
 #endif
+
+    g_SpriteManager->Render();
 
 #if WITH_IMGUI
     float times[200];

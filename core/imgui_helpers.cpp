@@ -12,6 +12,7 @@
 #include <lib/init_sequence.hpp>
 #include <lib/error.hpp>
 #include <world.hpp>
+#include <core/event_manager.hpp>
 
 using namespace world;
 
@@ -255,6 +256,12 @@ void LoadFontsTexture()
 
 namespace world
 {
+  static u8 RemapModifiers(const ImGuiIO& io)
+  {
+    return io.KeyShift * event::kModShift + io.KeyCtrl * event::kModCtrl
+           + io.KeyAlt * event::kModAlt;
+  }
+
   //------------------------------------------------------------------------------
   LRESULT WINAPI ImGuiWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
   {
@@ -282,10 +289,12 @@ namespace world
         io.KeysDown[wParam & 0xff] = true;
         io.KeyCtrl = wParam == VK_CONTROL;
         io.KeyShift = wParam == VK_SHIFT;
+        g_eventManager->AddEvent(event::KeyDown((int)wParam, RemapModifiers(io)));
         return true;
       case WM_KEYUP:
         io.KeysDown[wParam & 0xff] = false;
         g_KeyUpTrigger.SetTrigger(wParam & 0xff);
+        g_eventManager->AddEvent(event::KeyUp((int)wParam, RemapModifiers(io)));
         return true;
     }
 

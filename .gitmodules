@@ -1,3 +1,6 @@
 [submodule "imgui"]
 	path = imgui
 	url = git@github.com:ocornut/imgui.git
+[submodule "contrib/lua"]
+	path = contrib/lua
+	url = git@github.com:lua/lua.git

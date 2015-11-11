@@ -256,6 +256,43 @@ namespace world
     return vec4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
   }
 
+  struct mat4x4
+  {
+    float& operator[](int idx) { return d[idx]; }
+    float operator[](int idx) const { return d[idx]; }
+    float d[16];
+  };
+
+  inline mat4x4 operator*(const mat4x4& a, const mat4x4& b)
+  {
+    mat4x4 res;
+
+    for (int i = 0; i < 4; ++i)
+    {
+      for (int j = 0; j < 4; ++j)
+      {
+        res.d[i*4+j] = 0;
+        for (int k = 0; k < 4; ++k)
+        {
+          res.d[i*4+j] += a.d[i*4+k] * b.d[j+k*4];
+        }
+      }
+    }
+    return res;
+  }
+
+  inline mat4x4 Transpose(const mat4x4& a)
+  {
+    return mat4x4{
+      a.d[0 * 4 + 0], a.d[1 * 4 + 0], a.d[2 * 4 + 0], a.d[3 * 4 + 0],
+      a.d[0 * 4 + 1], a.d[1 * 4 + 1], a.d[2 * 4 + 1], a.d[3 * 4 + 1],
+      a.d[0 * 4 + 2], a.d[1 * 4 + 2], a.d[2 * 4 + 2], a.d[3 * 4 + 2],
+      a.d[0 * 4 + 3], a.d[1 * 4 + 3], a.d[2 * 4 + 3], a.d[3 * 4 + 3]
+    };
+  }
+
+  mat4x4 MatrixOrthoLH(float w, float h, float zn, float zf);
+  mat4x4 MatrixLookAtLH(const vec3& vFrom, const vec3& vAt, const vec3& vWorldUp);
 
   //------------------------------------------------------------------------------
   struct Spherical

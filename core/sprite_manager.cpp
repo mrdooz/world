@@ -6,6 +6,9 @@
 #include <lib/init_sequence.hpp>
 #include <lib/mesh_utils.hpp>
 #include <core/vertex_types.hpp>
+#include <core/graphics_context.hpp>
+#include <core/entity.hpp>
+#include <contrib/picojson.h>
 
 using namespace world;
 using namespace world::parser;
@@ -39,9 +42,9 @@ bool SpriteManager::Init()
   INIT(_renderTextureBundle.Create(BundleOptions()
     .DepthStencilDesc(depthDescDepthDisabled)
     .RasterizerDesc(rasterizeDescCullNone)
-    .VertexShader("shaders/out/common.texture", "VsRenderTexture")
-    .PixelShader("shaders/out/common.texture", "PsRenderTexture")
-    .InputElement(CD3D11_INPUT_ELEMENT_DESC("SV_POSITION", DXGI_FORMAT_R32G32B32A32_FLOAT))
+    .VertexShader("shaders/out/sprite", "VsRenderTexture")
+    .PixelShader("shaders/out/sprite", "PsRenderTexture")
+    .InputElement(CD3D11_INPUT_ELEMENT_DESC("POSITION", DXGI_FORMAT_R32G32B32_FLOAT))
     .InputElement(CD3D11_INPUT_ELEMENT_DESC("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT))
     .StaticIb(GenerateQuadIndices(MAX_SPRITES_PER_BATCH))
     .DynamicVb(4 * MAX_SPRITES_PER_BATCH, sizeof(PosTex))));
@@ -50,6 +53,16 @@ bool SpriteManager::Init()
   INIT_FATAL(_cbRenderTexture.Create());
 
   END_INIT_SEQUENCE();
+}
+
+//------------------------------------------------------------------------------
+void SpriteManager::AddEntity(const Entity* e, const vec2& pos, u16 sprite)
+{
+  assert(_entityCount < MAX_ENTITIES);
+  _entityPos[_entityCount] = pos;
+  _entitySprite[_entityCount] = sprite;
+  _entityMap[e->id] = _entityCount;
+  _entityCount++;
 }
 
 //------------------------------------------------------------------------------
@@ -65,6 +78,183 @@ u16 SpriteManager::AddSprite(const string& name,
   _spritesByName[name] = sprite;
   _sprites.push_back(sprite);
   return id;
+}
+//------------------------------------------------------------------------------
+template<typename T, typename TOrg = T, typename U>
+bool CheckedGet(const U& m, const string& key, T* res)
+{
+  auto it = m.find(key);
+  if (it == m.end())
+  {
+    LOG_WARN("Unable to find property: ", key);
+    return false;
+  }
+
+  // perform a cast, as json doesn't support int types, only doubles
+  *res = (T)it->second.get<TOrg>();
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool SpriteManager::LoadTmx(const char* filename)
+{
+  _tmxTexture = g_ResourceManager->LoadTexture("gfx/TinyPlatformQuestTiles.png");
+
+  vector<char> ss;
+  if (!g_ResourceManager->LoadFile("tmx/level1.json", &ss))
+    return false;
+
+  picojson::value res;
+  string err = picojson::parse(res, ss.begin(), ss.end());
+  if (!err.empty())
+  {
+    LOG_WARN("Error loading tmx: ", filename, "error: ", err);
+    return false;
+  }
+
+  const auto& obj = res.get<picojson::object>();
+
+  if (
+    !CheckedGet<int, double>(obj, "width", &_tmxLevel.width) ||
+    !CheckedGet<int, double>(obj, "height", &_tmxLevel.height) ||
+    !CheckedGet<int, double>(obj, "tilewidth", &_tmxLevel.tileWidth) ||
+    !CheckedGet<int, double>(obj, "tileheight", &_tmxLevel.tileHeight))
+  {
+    return false;
+  }
+
+  picojson::array layers;
+  if (!CheckedGet(obj, "layers", &layers))
+    return false;
+
+  for (auto& layer : layers)
+  {
+    _tmxLevel.layers.push_back(TmxLayer());
+    TmxLayer& tmxLayer = _tmxLevel.layers.back();
+
+    const picojson::object& layerObj = layer.get<picojson::object>();
+
+    if (
+      !CheckedGet(layerObj, "name", &tmxLayer.name) ||
+      !CheckedGet<int, double>(layerObj, "x", &tmxLayer.x) ||
+      !CheckedGet<int, double>(layerObj, "y", &tmxLayer.y) ||
+      !CheckedGet<int, double>(layerObj, "width", &tmxLayer.width) ||
+      !CheckedGet<int, double>(layerObj, "height", &tmxLayer.height))
+    {
+      return false;
+    }
+
+    picojson::array data;
+    if (!CheckedGet(layerObj, "data", &data))
+      return false;
+
+    tmxLayer.tiles.reserve(data.size());
+    for (auto& d : data)
+    {
+      tmxLayer.tiles.push_back((int)d.get<double>());
+    }
+  }
+
+  picojson::array tilesets;
+  if (!CheckedGet(obj ,"tilesets", &tilesets))
+    return false;
+
+  for (auto& tileset : tilesets)
+  {
+    _tmxLevel.tilesets.push_back(TmxTileset());
+    TmxTileset& tmxTileset = _tmxLevel.tilesets.back();
+
+    const picojson::object& tilesetObj = tileset.get<picojson::object>();
+
+    if (
+      !CheckedGet(tilesetObj, "name", &tmxTileset.name) ||
+      !CheckedGet(tilesetObj, "image", &tmxTileset.image) ||
+      !CheckedGet<int, double>(tilesetObj, "firstgid", &tmxTileset.firstGid) ||
+      !CheckedGet<int, double>(tilesetObj, "imagewidth", &tmxTileset.imageWidth) ||
+      !CheckedGet<int, double>(tilesetObj, "imageheight", &tmxTileset.imageHeight) ||
+      !CheckedGet<int, double>(tilesetObj, "margin", &tmxTileset.margin) ||
+      !CheckedGet<int, double>(tilesetObj, "spacing", &tmxTileset.spacing) ||
+      !CheckedGet<int, double>(tilesetObj, "tilecount", &tmxTileset.tileCount) ||
+      !CheckedGet<int, double>(tilesetObj, "tilewidth", &tmxTileset.tileWidth) ||
+      !CheckedGet<int, double>(tilesetObj, "tileheight", &tmxTileset.tileHeight))
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+void SpriteManager::Render()
+{
+  GraphicsContext* ctx = g_Graphics->GetGraphicsContext();
+
+  int bbWidth, bbHeight;
+  g_Graphics->GetBackBufferSize(&bbWidth, &bbHeight);
+
+  int numTris = 0;
+  {
+    ObjectHandle h = _renderTextureBundle.objects._vb;
+    PosTex* vtx = ctx->MapWriteDiscard<PosTex>(h);
+
+    float y = bbHeight/2.f;
+    float yInc = 32;
+    float xInc = 32;
+    int idx = 0;
+
+    for (int i = 0; i < _tmxLevel.layers[0].height; ++i)
+    {
+      float x = -bbWidth/2.f;
+      for (int j = 0; j < _tmxLevel.layers[0].width; ++j)
+      {
+        int spriteId = _tmxLevel.layers[0].tiles[idx];
+        if (spriteId != 0)
+        {
+          spriteId -= 1;
+
+          // 0, 1, 3
+          // 3, 1, 2
+
+          // 0, 1
+          // 3, 2
+          float z = 0.5f;
+
+          int ww = _tmxLevel.tilesets[0].imageWidth / _tmxLevel.tilesets[0].tileWidth;
+          int spriteX = spriteId % ww;
+          int spriteY = spriteId / ww;
+
+          float sx = (float)_tmxLevel.tilesets[0].tileWidth / _tmxLevel.tilesets[0].imageWidth;
+          float sy = (float)_tmxLevel.tilesets[0].tileHeight / _tmxLevel.tilesets[0].imageHeight;
+
+          vtx[0] = PosTex{vec3{x, y, z}, vec2{sx * spriteX, sy * spriteY}};
+          vtx[1] = PosTex{vec3{x + xInc, y, z}, vec2{sx * spriteX + sx, sy * spriteY}};
+          vtx[2] = PosTex{vec3{x + xInc, y - yInc, z}, vec2{sx * spriteX + sx, sy * spriteY + sy}};
+          vtx[3] = PosTex{vec3{x, y - yInc, z}, vec2{sx * spriteX, sy * spriteY + sy}};
+
+          vtx += 4;
+          numTris += 2;
+        }
+        x += xInc;
+        idx++;
+      }
+
+      y -= yInc;
+    }
+    ctx->Unmap(h);
+  }
+
+  mat4x4 view = MatrixLookAtLH(vec3(0, 0, -1), vec3(0, 0, 0), vec3(0, 1, 0));
+  mat4x4 proj = MatrixOrthoLH((float)bbWidth, (float)bbHeight, 0, 1);
+  mat4x4 viewProj = proj;
+
+
+  _cbRenderTexture.vs0.viewProj = Transpose(viewProj);
+  _cbRenderTexture.Set(ctx, 0);
+  ctx->SetBundleWithSamplers(_renderTextureBundle, ShaderType::PixelShader);
+  ctx->SetShaderResource(_tmxTexture);
+  ctx->DrawIndexed(6 * numTris, 0, 0);
 }
 
 #if 0
@@ -335,10 +525,10 @@ void SpriteManager::RenderSprites(
     // 0--1
     // 2--3
     
-    vtx[0] = PosTex{ pos.x, pos.y, 0, 0, 0 };
-    vtx[0] = PosTex{ pos.x, pos.y, 0, 0, 0 };
-    vtx[0] = PosTex{ pos.x, pos.y, 0, 0, 0 };
-    vtx[0] = PosTex{ pos.x, pos.y, 0, 0, 0 };
+    //vtx[0] = PosTex{ pos.x, pos.y, 0, 0, 0 };
+    //vtx[0] = PosTex{ pos.x, pos.y, 0, 0, 0 };
+    //vtx[0] = PosTex{ pos.x, pos.y, 0, 0, 0 };
+    //vtx[0] = PosTex{ pos.x, pos.y, 0, 0, 0 };
   }
   _ctx->Unmap(h);
 }

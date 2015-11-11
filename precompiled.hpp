@@ -6,6 +6,7 @@
 
 #define WITH_UNPACKED_RESOURCES 1
 #define WITH_IMGUI 1
+#define WITH_DEBUG_SHADERS 1
 
 #include <sys/types.h>
 #include <errno.h>

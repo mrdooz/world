@@ -109,13 +109,6 @@ namespace world
     return Normalize(v);
   }
 
-  struct mat4x4
-  {
-    float& operator[](int idx) { return d[idx]; }
-    float operator[](int idx) const { return d[idx]; }
-    float d[16];
-  };
-
   //------------------------------------------------------------------------------
   // http://msdn.microsoft.com/en-us/library/windows/desktop/bb205342(v=vs.85).aspx
   mat4x4 MatrixLookAtLH(const vec3& vFrom, const vec3& vAt, const vec3& vWorldUp)
@@ -195,27 +188,16 @@ namespace world
 
   //------------------------------------------------------------------------------
   //      http://msdn.microsoft.com/en-us/library/windows/desktop/bb204940(v=vs.85).aspx
-  inline void vp_matrixOrthoLH(float matrix[16], float width, float height, float nearPlane, float farPlane)
+  mat4x4 MatrixOrthoLH(float w, float h, float zn, float zf)
   {
-    matrix[0] = 2.0f / width;
-    matrix[1] = 0;
-    matrix[2] = 0;
-    matrix[3] = 0;
+    // from https://msdn.microsoft.com/en-us/library/windows/desktop/bb205346(v=vs.85).aspx
+    float d = zf - zn;
 
-    matrix[4] = 0;
-    matrix[5] = 2.0f / height;
-    matrix[6] = 0;
-    matrix[7] = 0;
-
-    matrix[8] = 0;
-    matrix[9] = 0;
-    matrix[10] = 1.0f / (farPlane - nearPlane);
-    matrix[11] = 0;
-
-    matrix[12] = 0;
-    matrix[13] = 0;
-    matrix[14] = nearPlane / (nearPlane - farPlane);
-    matrix[15] = 1;
+    return mat4x4{
+      2 / w, 0, 0, 0,
+      0, 2 / h, 0, 0,
+      0, 0, 1 / d, 0,
+      0, 0, -zn / d, 1 };
   }
 
   //------------------------------------------------------------------------------

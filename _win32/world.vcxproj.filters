@@ -102,6 +102,12 @@
     <ClCompile Include="..\lib\mesh_utils.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\core\entity.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\core\event_manager.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\precompiled.hpp">
@@ -192,6 +198,12 @@
       <Filter>stb</Filter>
     </ClInclude>
     <ClInclude Include="..\lib\mesh_utils.hpp">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\entity.hpp">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\event_manager.hpp">
       <Filter>inc</Filter>
     </ClInclude>
   </ItemGroup>
