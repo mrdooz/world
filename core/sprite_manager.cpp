@@ -137,6 +137,9 @@ bool SpriteManager::LoadSpriteLayer(const picojson::object& layerObj)
 //------------------------------------------------------------------------------
 static b2Vec2 ScreenToBox2d(float x, float y, float bbWidth, float bbHeight)
 {
+  // apply the zero level, and scale
+  // (zero - y) / scale
+
   // note, the world starts at x=0 in world space
   //y = bbHeight - y;
   return b2Vec2(x / PIXELS_PER_METER, bbHeight - y / PIXELS_PER_METER);
@@ -224,9 +227,15 @@ bool SpriteManager::LoadTmx(const char* filename)
 
   if (levelObj.count("properties"))
   {
+    // read the zero level
     const auto& propertiesObj = levelObj.find("properties")->second.get<picojson::object>();
-    // TODO: read ZeroLevel
-    int a = 10;
+    string zeroLevel;
+    if (!CheckedGet(propertiesObj, "zerolevel", &zeroLevel))
+    {
+      return false;
+    }
+
+    _tmxLevel.zeroLevel = atoi(zeroLevel.c_str());
   }
 
   if (
