@@ -3,9 +3,8 @@
 #include <core/object_handle.hpp>
 #include <core/gpu_objects.hpp>
 #include <shaders/out/sprite_vsrendertexture.cbuffers.hpp>
-
-//#include "types.hpp"
-//#include "object_handle.hpp"
+#include <contrib/picojson.h>
+#include <Box2D/Box2D.h>
 
 namespace world
 {
@@ -30,11 +29,14 @@ namespace world
 
   struct TmxLevel
   {
+    TmxLevel();
     int width, height;
     int tileWidth, tileHeight;
 
     vector<TmxLayer> layers;
     vector<TmxTileset> tilesets;
+
+    b2World world;
   };
 
   struct SpriteSheet
@@ -62,6 +64,8 @@ namespace world
     static bool Destroy();
 
     bool LoadTmx(const char* filename);
+    bool LoadSpriteLayer(const picojson::object& layerObj);
+    bool LoadCollisionLayer(const picojson::object& layerObj);
 
     ObjectHandle LoadSpriteSheet(const char* filename);
 
@@ -77,9 +81,8 @@ namespace world
     void RenderSprite(ObjectHandle spriteSheet, int spriteId, int x, int y);
     void RenderSprites(ObjectHandle spriteSheet, const int* spriteIds, const vec2i* pos, int cnt);
 
+    void Tick();
     void Render();
-    //void CopyOut(const string& name, const vec2& pos, vector<SpriteVtx>* verts, vector<u32>* indices);
-    //void CopyOut(u16 idx, const vec2& pos, vector<SpriteVtx>* verts, vector<u32>* indices);
     u16 GetSpriteIndex(const string& name);
 
     bool Init();
@@ -92,8 +95,6 @@ namespace world
       ObjectHandle handle;
       u16 idx;
     };
-
-    //void CopyOut(const Sprite* sprite, const vec2& pos, vector<SpriteVtx>* verts, vector<u32>* indices);
 
     unordered_map<u32, SpriteSheet> _spriteSheets;
     unordered_map<string, Sprite*> _spritesByName;
@@ -112,6 +113,11 @@ namespace world
     ObjectHandle _tmxTexture;
     TmxLevel _tmxLevel;
 
+    b2Body* _dynamicBody = nullptr;
+
+    LARGE_INTEGER _timerFrequency;
+    double _lastTick = 0;
+    double _updatedAcc = 0;
   };
 
   extern SpriteManager* g_SpriteManager;

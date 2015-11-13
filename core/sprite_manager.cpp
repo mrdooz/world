@@ -5,18 +5,25 @@
 #include <lib/error.hpp>
 #include <lib/init_sequence.hpp>
 #include <lib/mesh_utils.hpp>
+#include <lib/string_utils.hpp>
 #include <core/vertex_types.hpp>
 #include <core/graphics_context.hpp>
 #include <core/entity.hpp>
-#include <contrib/picojson.h>
 
 using namespace world;
 using namespace world::parser;
 
 static const int MAX_SPRITES_PER_BATCH = 32 * 1024;
+static const float PIXELS_PER_METER = 16;
 
 //------------------------------------------------------------------------------
 SpriteManager* world::g_SpriteManager = nullptr;
+
+//------------------------------------------------------------------------------
+TmxLevel::TmxLevel()
+  : world(b2Vec2(0.0f, -10.0f))
+{
+}
 
 //------------------------------------------------------------------------------
 bool SpriteManager::Create()
@@ -37,6 +44,8 @@ bool SpriteManager::Destroy()
 bool SpriteManager::Init()
 {
   BEGIN_INIT_SEQUENCE();
+
+  QueryPerformanceFrequency(&_timerFrequency);
 
   // clang-format off
   INIT(_renderTextureBundle.Create(BundleOptions()
@@ -97,6 +106,104 @@ bool CheckedGet(const U& m, const string& key, T* res)
 }
 
 //------------------------------------------------------------------------------
+bool SpriteManager::LoadSpriteLayer(const picojson::object& layerObj)
+{
+  _tmxLevel.layers.push_back(TmxLayer());
+  TmxLayer& tmxLayer = _tmxLevel.layers.back();
+
+  if (
+    !CheckedGet(layerObj, "name", &tmxLayer.name) ||
+    !CheckedGet<int, double>(layerObj, "x", &tmxLayer.x) ||
+    !CheckedGet<int, double>(layerObj, "y", &tmxLayer.y) ||
+    !CheckedGet<int, double>(layerObj, "width", &tmxLayer.width) ||
+    !CheckedGet<int, double>(layerObj, "height", &tmxLayer.height))
+  {
+    return false;
+  }
+
+  picojson::array data;
+  if (!CheckedGet(layerObj, "data", &data))
+    return false;
+
+  tmxLayer.tiles.reserve(data.size());
+  for (auto& d : data)
+  {
+    tmxLayer.tiles.push_back((int)d.get<double>());
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+static b2Vec2 ScreenToBox2d(float x, float y, float bbWidth, float bbHeight)
+{
+  // note, the world starts at x=0 in world space
+  //y = bbHeight - y;
+  return b2Vec2(x / PIXELS_PER_METER, bbHeight - y / PIXELS_PER_METER);
+}
+
+//------------------------------------------------------------------------------
+bool SpriteManager::LoadCollisionLayer(const picojson::object& layerObj)
+{
+  picojson::array objects;
+  if (!CheckedGet(layerObj, "objects", &objects))
+    return false;
+
+  int bbWidth, bbHeight;
+  g_Graphics->GetBackBufferSize(&bbWidth, &bbHeight);
+
+  for (auto& obj : objects)
+  {
+    picojson::object cur = obj.get<picojson::object>();
+    // determine the collision object type
+    bool ellipse;
+    if (CheckedGet(cur, "ellipse", &ellipse) && ellipse)
+    {
+      int a = 10;
+    }
+    else if (cur.count("polygon"))
+    {
+      int a = 10;
+    }
+    else if (cur.count("polyline"))
+    {
+      int a = 10;
+    }
+    else
+    {
+      // if nothing else is set, then the shape is a rectangle
+      float x ,y;
+      float width, height;
+      float rotation;
+
+      if (
+        !CheckedGet<float, double>(cur, "x", &x) ||
+        !CheckedGet<float, double>(cur, "y", &y) ||
+        !CheckedGet<float, double>(cur, "width", &width) ||
+        !CheckedGet<float, double>(cur, "height", &height) ||
+        !CheckedGet<float, double>(cur, "rotation", &rotation))
+      {
+        return false;
+      }
+
+      static b2BodyDef bodyDef;
+      b2Vec2 pos = ScreenToBox2d(x + width / 2.f, y + height / 2.f, (float)bbWidth, (float)bbHeight);
+      bodyDef.position.Set(pos.x, pos.y);
+      b2Body* body = _tmxLevel.world.CreateBody(&bodyDef);
+
+      static b2PolygonShape box;
+
+      // The extents are the half-widths of the box.
+      box.SetAsBox(width/ (2 * PIXELS_PER_METER), height * (2 * PIXELS_PER_METER));
+
+      body->CreateFixture(&box, 0.0f);
+    }
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
 bool SpriteManager::LoadTmx(const char* filename)
 {
   _tmxTexture = g_ResourceManager->LoadTexture("gfx/TinyPlatformQuestTiles.png");
@@ -113,51 +220,51 @@ bool SpriteManager::LoadTmx(const char* filename)
     return false;
   }
 
-  const auto& obj = res.get<picojson::object>();
+  const auto& levelObj = res.get<picojson::object>();
+
+  if (levelObj.count("properties"))
+  {
+    const auto& propertiesObj = levelObj.find("properties")->second.get<picojson::object>();
+    // TODO: read ZeroLevel
+    int a = 10;
+  }
 
   if (
-    !CheckedGet<int, double>(obj, "width", &_tmxLevel.width) ||
-    !CheckedGet<int, double>(obj, "height", &_tmxLevel.height) ||
-    !CheckedGet<int, double>(obj, "tilewidth", &_tmxLevel.tileWidth) ||
-    !CheckedGet<int, double>(obj, "tileheight", &_tmxLevel.tileHeight))
+    !CheckedGet<int, double>(levelObj, "width", &_tmxLevel.width) ||
+    !CheckedGet<int, double>(levelObj, "height", &_tmxLevel.height) ||
+    !CheckedGet<int, double>(levelObj, "tilewidth", &_tmxLevel.tileWidth) ||
+    !CheckedGet<int, double>(levelObj, "tileheight", &_tmxLevel.tileHeight))
   {
     return false;
   }
 
   picojson::array layers;
-  if (!CheckedGet(obj, "layers", &layers))
+  if (!CheckedGet(levelObj, "layers", &layers))
     return false;
 
   for (auto& layer : layers)
   {
-    _tmxLevel.layers.push_back(TmxLayer());
-    TmxLayer& tmxLayer = _tmxLevel.layers.back();
-
     const picojson::object& layerObj = layer.get<picojson::object>();
 
-    if (
-      !CheckedGet(layerObj, "name", &tmxLayer.name) ||
-      !CheckedGet<int, double>(layerObj, "x", &tmxLayer.x) ||
-      !CheckedGet<int, double>(layerObj, "y", &tmxLayer.y) ||
-      !CheckedGet<int, double>(layerObj, "width", &tmxLayer.width) ||
-      !CheckedGet<int, double>(layerObj, "height", &tmxLayer.height))
-    {
+    string name;
+    if (!CheckedGet(layerObj, "name", &name))
       return false;
+
+    transform(name.begin(), name.end(), name.begin(), tolower);
+    if (StartsWith(name, "collision"))
+    {
+      if (!LoadCollisionLayer(layerObj))
+        return false;
     }
-
-    picojson::array data;
-    if (!CheckedGet(layerObj, "data", &data))
-      return false;
-
-    tmxLayer.tiles.reserve(data.size());
-    for (auto& d : data)
+    else
     {
-      tmxLayer.tiles.push_back((int)d.get<double>());
+      if (!LoadSpriteLayer(layerObj))
+        return false;
     }
   }
 
   picojson::array tilesets;
-  if (!CheckedGet(obj ,"tilesets", &tilesets))
+  if (!CheckedGet(levelObj ,"tilesets", &tilesets))
     return false;
 
   for (auto& tileset : tilesets)
@@ -183,7 +290,66 @@ bool SpriteManager::LoadTmx(const char* filename)
     }
   }
 
+  {
+    static b2BodyDef bodyDef;
+    bodyDef.type = b2_dynamicBody;
+    bodyDef.position.Set(12, 10);
+    _dynamicBody = _tmxLevel.world.CreateBody(&bodyDef);
+
+    // Define another box shape for our dynamic body.
+    static b2PolygonShape dynamicBox;
+    dynamicBox.SetAsBox(1.0f, 1.0f);
+
+    // Define the dynamic body fixture.
+    b2FixtureDef fixtureDef;
+    fixtureDef.shape = &dynamicBox;
+
+    // Set the box density to be non-zero, so it will be dynamic.
+    fixtureDef.density = 1.0f;
+
+    // Override the default friction.
+    fixtureDef.friction = 0.3f;
+
+    // Add the shape to the body.
+    _dynamicBody->CreateFixture(&fixtureDef);
+  }
+
   return true;
+}
+
+//------------------------------------------------------------------------------
+void SpriteManager::Tick()
+{
+  LARGE_INTEGER tmp;
+  QueryPerformanceCounter(&tmp);
+  double now = (double)tmp.QuadPart / _timerFrequency.QuadPart;
+  double delta = 0;
+  if (_lastTick > 0)
+  {
+    delta = now - _lastTick;
+  }
+  _lastTick = now;
+
+  double UPDATE_FREQUENCY = 60;
+  double UPDATE_INTERVAL = 1.0 / UPDATE_FREQUENCY;
+
+  _updatedAcc += delta;
+  int numTicks = (int)(_updatedAcc / UPDATE_INTERVAL);
+  _updatedAcc -= numTicks * UPDATE_INTERVAL;
+
+  int velocityIterations = 6;
+  int positionIterations = 2;
+
+  for (int i = 0; i < numTicks; ++i)
+  {
+    _tmxLevel.world.Step((float)UPDATE_INTERVAL, velocityIterations, positionIterations);
+  }
+
+  for (b2Contact* c = _tmxLevel.world.GetContactList(); c; c = c->GetNext())
+  {
+    int a = 10;
+    // process c
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -204,9 +370,13 @@ void SpriteManager::Render()
     float xInc = 32;
     int idx = 0;
 
+    float sx = (float)_tmxLevel.tilesets[0].tileWidth / _tmxLevel.tilesets[0].imageWidth;
+    float sy = (float)_tmxLevel.tilesets[0].tileHeight / _tmxLevel.tilesets[0].imageHeight;
+
     for (int i = 0; i < _tmxLevel.layers[0].height; ++i)
     {
-      float x = -bbWidth/2.f;
+      //float x = -bbWidth / 2.f;
+      float x = 0;
       for (int j = 0; j < _tmxLevel.layers[0].width; ++j)
       {
         int spriteId = _tmxLevel.layers[0].tiles[idx];
@@ -225,9 +395,6 @@ void SpriteManager::Render()
           int spriteX = spriteId % ww;
           int spriteY = spriteId / ww;
 
-          float sx = (float)_tmxLevel.tilesets[0].tileWidth / _tmxLevel.tilesets[0].imageWidth;
-          float sy = (float)_tmxLevel.tilesets[0].tileHeight / _tmxLevel.tilesets[0].imageHeight;
-
           vtx[0] = PosTex{vec3{x, y, z}, vec2{sx * spriteX, sy * spriteY}};
           vtx[1] = PosTex{vec3{x + xInc, y, z}, vec2{sx * spriteX + sx, sy * spriteY}};
           vtx[2] = PosTex{vec3{x + xInc, y - yInc, z}, vec2{sx * spriteX + sx, sy * spriteY + sy}};
@@ -242,6 +409,24 @@ void SpriteManager::Render()
 
       y -= yInc;
     }
+
+    {
+      // HACK HACK!
+      b2Vec2 p = _dynamicBody->GetPosition();
+      float x = p.x * PIXELS_PER_METER;
+      float y = p.y * PIXELS_PER_METER;
+      float z = 0.5f;
+
+      int spriteX = 1;
+      int spriteY = 0;
+      vtx[0] = PosTex{ vec3{ x, y, z }, vec2{ sx * spriteX, sy * spriteY } };
+      vtx[1] = PosTex{ vec3{ x + xInc, y, z }, vec2{ sx * spriteX + sx, sy * spriteY } };
+      vtx[2] = PosTex{ vec3{ x + xInc, y - yInc, z }, vec2{ sx * spriteX + sx, sy * spriteY + sy } };
+      vtx[3] = PosTex{ vec3{ x, y - yInc, z }, vec2{ sx * spriteX, sy * spriteY + sy } };
+
+      numTris += 2;
+    }
+
     ctx->Unmap(h);
   }
 

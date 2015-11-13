@@ -5,7 +5,7 @@ using namespace std;
 
 namespace world
 {
-  string ToString(char const * const format, ... ) 
+  string ToString(char const* const format, ...)
   {
 #ifdef _WIN32
     va_list arg;
@@ -19,7 +19,7 @@ namespace world
 
     return string(buf);
 #else
-    static char buf[4*1024];
+    static char buf[4 * 1024];
     va_list arg;
     va_start(arg, format);
     vsprintf(buf, format, arg);
@@ -30,9 +30,10 @@ namespace world
   }
 
 #ifdef _WIN32
-  string WideCharToUtf8(const WCHAR *str) {
+  string WideCharToUtf8(const WCHAR* str)
+  {
     int len = (int)wcslen(str);
-    char *buf = (char *)_alloca(len*2 + 1);
+    char* buf = (char*)_alloca(len * 2 + 1);
     int res = WideCharToMultiByte(CP_UTF8, 0, str, len, buf, len * 2 + 1, NULL, NULL);
     if (res == 0)
       return false;
@@ -41,12 +42,12 @@ namespace world
     return string(buf);
   }
 
-  bool WideCharToUtf8(LPCOLESTR unicode, int len, string *str)
+  bool WideCharToUtf8(LPCOLESTR unicode, int len, string* str)
   {
     if (!unicode)
       return false;
 
-    char *buf = (char *)_alloca(len*2 + 1);
+    char* buf = (char*)_alloca(len * 2 + 1);
 
     int res = WideCharToMultiByte(CP_UTF8, 0, unicode, len, buf, len * 2 + 1, NULL, NULL);
     if (res == 0)
@@ -58,7 +59,7 @@ namespace world
     return true;
   }
 #endif
-  string Trim(const string &str) 
+  string Trim(const string& str)
   {
     int leading = 0, trailing = 0;
     while (isspace((uint8_t)str[leading]))
@@ -70,13 +71,15 @@ namespace world
     return leading || trailing ? str.substr(leading, str.size() - (leading + trailing)) : str;
   }
 
-  bool BeginsWith(const char *str, const char *sub_str) {
+  bool StartsWith(const char* str, const char* sub_str)
+  {
     const size_t len_a = strlen(str);
     const size_t len_b = strlen(sub_str);
     if (len_a < len_b)
       return false;
 
-    for (;*sub_str; ++str, ++sub_str) {
+    for (; *sub_str; ++str, ++sub_str)
+    {
       if (*sub_str != *str)
         return false;
     }
@@ -84,13 +87,15 @@ namespace world
     return true;
   }
 
-  bool BeginsWith(const string &str, const string &sub_str) {
+  bool StartsWith(const string& str, const string& sub_str)
+  {
     const size_t len_a = str.size();
     const size_t len_b = sub_str.size();
     if (len_a < len_b)
       return false;
 
-    for (size_t i = 0; i < len_b; ++i) {
+    for (size_t i = 0; i < len_b; ++i)
+    {
       if (sub_str[i] != str[i])
         return false;
     }
@@ -98,16 +103,18 @@ namespace world
     return true;
   }
 #ifdef _WIN32
-  wstring Utf8ToWide(const char *str)
+  wstring Utf8ToWide(const char* str)
   {
     int len = (int)strlen(str);
-    WCHAR *buf = (WCHAR *)_alloca((len + 1) * 2);
+    WCHAR* buf = (WCHAR*)_alloca((len + 1) * 2);
 
     wstring res;
-    if (MultiByteToWideChar(CP_UTF8, 0, str, -1, buf, (len + 1) * 2)) {
+    if (MultiByteToWideChar(CP_UTF8, 0, str, -1, buf, (len + 1) * 2))
+    {
       res = wstring(buf);
     }
-    else {
+    else
+    {
       int err = GetLastError();
     }
     return res;
@@ -156,6 +163,4 @@ namespace world
 
     return res;
   }
-
 }
-

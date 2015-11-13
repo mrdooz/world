@@ -247,6 +247,7 @@ bool World::Run()
     RESOURCE_MANAGER.Tick();
 #endif
 
+    g_SpriteManager->Tick();
     g_SpriteManager->Render();
 
 #if WITH_IMGUI
