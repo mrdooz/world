@@ -32,7 +32,7 @@ namespace world
     TmxLevel();
     int width, height;
     int tileWidth, tileHeight;
-    int zeroLevel;
+    float zeroLevel;
 
     vector<TmxLayer> layers;
     vector<TmxTileset> tilesets;

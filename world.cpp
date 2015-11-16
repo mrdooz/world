@@ -147,28 +147,27 @@ LRESULT World::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 //    TANO._ioState.mouseWheel += GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? +1.0f : -1.0f;
 //    break;
 //
-//  case WM_KEYDOWN:
-//
-//    switch (wParam)
-//    {
-//    case VK_LEFT:
-//      g_DemoEngine->SetPos(g_DemoEngine->Pos() - TimeDuration::Seconds(1));
-//      return 0;
-//
-//    case VK_RIGHT:
-//      g_DemoEngine->SetPos(g_DemoEngine->Pos() + TimeDuration::Seconds(1));
-//      return 0;
-//
-//    case VK_UP:
-//      g_DemoEngine->SetPos(g_DemoEngine->Pos() - TimeDuration::Milliseconds(100));
-//      return 0;
-//
-//    case VK_DOWN:
-//      g_DemoEngine->SetPos(g_DemoEngine->Pos() + TimeDuration::Milliseconds(100));
-//      return 0;
-//    }
-//    break;
-//
+  case WM_KEYDOWN:
+
+    switch (wParam)
+    {
+    case VK_LEFT:
+      g_SpriteManager->_dynamicBody->ApplyForceToCenter(b2Vec2(-15, 0), true);
+      return 0;
+
+    case VK_RIGHT:
+      g_SpriteManager->_dynamicBody->ApplyForceToCenter(b2Vec2(+15, 0), true);
+      return 0;
+
+    case VK_UP:
+      g_SpriteManager->_dynamicBody->ApplyForceToCenter(b2Vec2(0, 15), true);
+      return 0;
+
+    case VK_DOWN:
+      return 0;
+    }
+    break;
+
   case WM_KEYUP:
 
     switch (wParam)

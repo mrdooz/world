@@ -21,7 +21,7 @@ SpriteManager* world::g_SpriteManager = nullptr;
 
 //------------------------------------------------------------------------------
 TmxLevel::TmxLevel()
-  : world(b2Vec2(0.0f, -10.0f))
+  : world(b2Vec2(0.0f, -1.0f))
 {
 }
 
@@ -135,14 +135,11 @@ bool SpriteManager::LoadSpriteLayer(const picojson::object& layerObj)
 }
 
 //------------------------------------------------------------------------------
-static b2Vec2 ScreenToBox2d(float x, float y, float bbWidth, float bbHeight)
+static b2Vec2 ScreenToBox2d(float x, float y, float zeroLevel)
 {
   // apply the zero level, and scale
-  // (zero - y) / scale
-
-  // note, the world starts at x=0 in world space
-  //y = bbHeight - y;
-  return b2Vec2(x / PIXELS_PER_METER, bbHeight - y / PIXELS_PER_METER);
+  // nb: this also flips the y coordinate axis, from 0 top left, to 0 center
+  return b2Vec2(x / PIXELS_PER_METER, (zeroLevel - y) / PIXELS_PER_METER);
 }
 
 //------------------------------------------------------------------------------
@@ -170,7 +167,28 @@ bool SpriteManager::LoadCollisionLayer(const picojson::object& layerObj)
     }
     else if (cur.count("polyline"))
     {
-      int a = 10;
+      vector<b2Vec2> points;
+      picojson::array polylineObj = cur.find("polyline")->second.get<picojson::array>();
+      for (auto& pt : polylineObj)
+      {
+        picojson::object ptObj = pt.get<picojson::object>();
+        float x, y;
+        if (
+          !CheckedGet<float, double>(ptObj, "x", &x) ||
+          !CheckedGet<float, double>(ptObj, "y", &y))
+        {
+          return false;
+        }
+
+        points.push_back(ScreenToBox2d(x, y, _tmxLevel.zeroLevel));
+      }
+
+      b2ChainShape chain;
+      chain.CreateChain(points.data(), (int)points.size());
+
+      b2BodyDef bodyDef;
+      b2Body* body = _tmxLevel.world.CreateBody(&bodyDef);
+      body->CreateFixture(&chain, 0.0f);
     }
     else
     {
@@ -189,15 +207,15 @@ bool SpriteManager::LoadCollisionLayer(const picojson::object& layerObj)
         return false;
       }
 
-      static b2BodyDef bodyDef;
-      b2Vec2 pos = ScreenToBox2d(x + width / 2.f, y + height / 2.f, (float)bbWidth, (float)bbHeight);
+      b2BodyDef bodyDef;
+      b2Vec2 pos = ScreenToBox2d(x + width / 2.f, y + height / 2.f, (float)_tmxLevel.zeroLevel);
       bodyDef.position.Set(pos.x, pos.y);
       b2Body* body = _tmxLevel.world.CreateBody(&bodyDef);
 
-      static b2PolygonShape box;
+      b2PolygonShape box;
 
       // The extents are the half-widths of the box.
-      box.SetAsBox(width/ (2 * PIXELS_PER_METER), height * (2 * PIXELS_PER_METER));
+      box.SetAsBox(width/ (2 * PIXELS_PER_METER), height / (2 * PIXELS_PER_METER));
 
       body->CreateFixture(&box, 0.0f);
     }
@@ -225,6 +243,15 @@ bool SpriteManager::LoadTmx(const char* filename)
 
   const auto& levelObj = res.get<picojson::object>();
 
+  if (
+    !CheckedGet<int, double>(levelObj, "width", &_tmxLevel.width) ||
+    !CheckedGet<int, double>(levelObj, "height", &_tmxLevel.height) ||
+    !CheckedGet<int, double>(levelObj, "tilewidth", &_tmxLevel.tileWidth) ||
+    !CheckedGet<int, double>(levelObj, "tileheight", &_tmxLevel.tileHeight))
+  {
+    return false;
+  }
+
   if (levelObj.count("properties"))
   {
     // read the zero level
@@ -234,17 +261,7 @@ bool SpriteManager::LoadTmx(const char* filename)
     {
       return false;
     }
-
-    _tmxLevel.zeroLevel = atoi(zeroLevel.c_str());
-  }
-
-  if (
-    !CheckedGet<int, double>(levelObj, "width", &_tmxLevel.width) ||
-    !CheckedGet<int, double>(levelObj, "height", &_tmxLevel.height) ||
-    !CheckedGet<int, double>(levelObj, "tilewidth", &_tmxLevel.tileWidth) ||
-    !CheckedGet<int, double>(levelObj, "tileheight", &_tmxLevel.tileHeight))
-  {
-    return false;
+    _tmxLevel.zeroLevel = (float)atof(zeroLevel.c_str()) * _tmxLevel.tileHeight;
   }
 
   picojson::array layers;
@@ -302,7 +319,7 @@ bool SpriteManager::LoadTmx(const char* filename)
   {
     static b2BodyDef bodyDef;
     bodyDef.type = b2_dynamicBody;
-    bodyDef.position.Set(12, 10);
+    bodyDef.position.Set(12, 20);
     _dynamicBody = _tmxLevel.world.CreateBody(&bodyDef);
 
     // Define another box shape for our dynamic body.
@@ -374,7 +391,7 @@ void SpriteManager::Render()
     ObjectHandle h = _renderTextureBundle.objects._vb;
     PosTex* vtx = ctx->MapWriteDiscard<PosTex>(h);
 
-    float y = bbHeight/2.f;
+    float y = (float)_tmxLevel.zeroLevel;
     float yInc = 32;
     float xInc = 32;
     int idx = 0;
@@ -439,7 +456,7 @@ void SpriteManager::Render()
     ctx->Unmap(h);
   }
 
-  mat4x4 view = MatrixLookAtLH(vec3(0, 0, -1), vec3(0, 0, 0), vec3(0, 1, 0));
+  mat4x4 view = MatrixLookAtLH(vec3(0, bbHeight/2.f, -1), vec3(0, bbHeight/2.f, 0), vec3(0, 1, 0));
   mat4x4 proj = MatrixOrthoLH((float)bbWidth, (float)bbHeight, 0, 10);
 
   mat4x4 viewProj = view * proj;
